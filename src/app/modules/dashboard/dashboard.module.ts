@@ -11,7 +11,7 @@ import { MessageService } from 'primeng/api';
 import { CookieService } from 'ngx-cookie-service';
 import { SidebarModule } from 'primeng/sidebar';
 import { ToolbarModule } from 'primeng/toolbar';
-
+import { ChartModule } from 'primeng/chart';
 
 @NgModule({
   declarations: [
@@ -26,7 +26,8 @@ import { ToolbarModule } from 'primeng/toolbar';
     ButtonModule,
     ToolbarModule,
     CardModule,
-    ToastModule
+    ToastModule,
+    ChartModule
   ],
   providers: [MessageService, CookieService]
 })
