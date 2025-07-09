@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
 import { LoginRequest, SignupRequest } from 'src/models/interfaces/user';
@@ -15,7 +16,8 @@ export class HomeComponent {
     private fb: FormBuilder,
     private userService: UserService,
     private cookieService: CookieService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private router: Router
   ) { }
 
   isLogin = true;
@@ -41,6 +43,8 @@ export class HomeComponent {
       next: (resp) => {
         this.cookieService.set("JWT_TOKEN", resp.token);
         this.loginForm.reset();
+        this.router.navigate(['/dashboard']);
+
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
