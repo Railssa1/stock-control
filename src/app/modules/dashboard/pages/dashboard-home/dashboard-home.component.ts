@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChartData, ChartOptions } from 'chart.js';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { ProductsDataTransferService } from 'src/app/shared/products/products-data-transfer.service';
@@ -18,6 +19,8 @@ export class DashboardHomeComponent implements OnInit, OnDestroy {
   ) { }
 
   productList: Array<GetAllProductsResponse> = [];
+  productsChartData!: ChartData;
+  productsChartOptions!: ChartOptions;
 
   private destroy$ = new Subject<void>();
 
@@ -32,6 +35,7 @@ export class DashboardHomeComponent implements OnInit, OnDestroy {
       next: (resp) => {
         this.productList = resp;
         this.productsDtService.setProductsData(this.productList);
+        this.setProductsChatConfig();
       },
       error: (err) => {
         this.messageService.add({
@@ -43,6 +47,60 @@ export class DashboardHomeComponent implements OnInit, OnDestroy {
         console.log(err);
       }
     })
+  }
+
+  setProductsChatConfig(): void {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+    const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
+    this.productsChartData = {
+      labels: this.productList.map((product) => product.name),
+      datasets: [
+        {
+          label: 'Quantidade',
+          backgroundColor: documentStyle.getPropertyValue('--indigo-400'),
+          borderColor: documentStyle.getPropertyValue('--indigo-400'),
+          hoverBackgroundColor: documentStyle.getPropertyValue('--indigo-500'),
+          data: this.productList.map((product) => product.amount)
+        }
+      ]
+    };
+
+    this.productsChartOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.8,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor
+          }
+        }
+      },
+
+      scales: {
+        x: {
+          ticks: {
+            color: textColorSecondary,
+            font: {
+              weight: 'bold'
+            },
+          },
+          grid: {
+            color: surfaceBorder
+          }
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary
+          },
+          grid: {
+            color: surfaceBorder
+          }
+        }
+      }
+    }
   }
 
   ngOnDestroy(): void {
