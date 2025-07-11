@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
 import { LoginRequest, SignupRequest } from 'src/models/interfaces/user';
 import { UserService } from 'src/services/user/user.service';
 
@@ -11,7 +12,7 @@ import { UserService } from 'src/services/user/user.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -33,13 +34,17 @@ export class HomeComponent {
     password: ['', Validators.required]
   });
 
+  private destroy$ = new Subject<void>();
+
   toggleCardLogin(): void {
     this.isLogin = !this.isLogin;
   }
 
   onSubmitLogin(): void {
     const request = this.loginForm.value as LoginRequest;
-    this.userService.login(request).subscribe({
+    this.userService.login(request)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (resp) => {
         this.cookieService.set("JWT_TOKEN", resp.token);
         this.loginForm.reset();
@@ -64,7 +69,9 @@ export class HomeComponent {
 
   onSubmitSignup(): void {
     const request = this.signupForm.value as SignupRequest;
-    this.userService.signup(request).subscribe({
+    this.userService.signup(request)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: () => {
         this.signupForm.reset();
         this.isLogin = true;
@@ -83,5 +90,10 @@ export class HomeComponent {
         console.log(err);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
