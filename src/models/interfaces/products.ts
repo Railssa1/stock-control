@@ -11,3 +11,8 @@ interface category {
   id: string;
   name: string;
 }
+
+export interface EventAction {
+  action: string;
+  id?: string;
+}

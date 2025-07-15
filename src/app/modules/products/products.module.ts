@@ -19,10 +19,12 @@ import { ConfirmationService } from 'primeng/api';
 import { ProductsHomeComponent } from './page/products-home/products-home.component';
 import { RouterModule } from '@angular/router';
 import { PRODUCTS_ROUTES } from './products.routing';
+import { ProductsTableComponent } from './components/products-table/products-table.component';
 
 @NgModule({
   declarations: [
-    ProductsHomeComponent
+    ProductsHomeComponent,
+    ProductsTableComponent
   ],
   imports: [
     CommonModule,
