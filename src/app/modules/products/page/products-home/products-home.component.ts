@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { ProductsDataTransferService } from 'src/app/shared/products/products-data-transfer.service';
-import { EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
+import { DeleteAction, EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
 import { ProductsService } from 'src/services/products/products.service';
 
 @Component({
@@ -19,7 +19,8 @@ export class ProductsHomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private productsService: ProductsService,
     private productsDtService: ProductsDataTransferService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) { }
 
   ngOnInit(): void {
@@ -54,6 +55,43 @@ export class ProductsHomeComponent implements OnInit, OnDestroy {
 
   handlerProductActions(event: EventAction): void {
     console.log("Evento recebido", event);
+  }
+
+  handlerDeleteProduct(event: DeleteAction): void{
+    this.confirmationService.confirm({
+      message: `Deseja excluir o produto: ${event.productName}`,
+      header: 'Confirmação de Exclusão',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim',
+      rejectLabel: 'Não',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.deleteProduct(event.productId)
+    });
+  }
+
+  deleteProduct(productId: string) {
+    this.productsService.deleteProduct(productId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Produto excluido com sucesso',
+          life: 2500
+        });
+
+        this.loadingProductsByApi();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao excluir produto',
+          life: 2500
+        });
+      }
+    });
   }
 
   ngOnDestroy(): void {

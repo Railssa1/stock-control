@@ -140,7 +140,9 @@
 									icon="pi pi-trash"
 									class="p-button-rounded p-button-danger"
 									pTooltip="Remover Produto"
-									tooltipPosition="top"></button>
+									tooltipPosition="top"
+                  (click)="handlerDeleteProduct(product?.name, product?.id)">
+                </button>
 							</div>
 						</td>
 					</tr>

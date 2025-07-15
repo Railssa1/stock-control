@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ProductEvent } from 'src/models/enums/products';
-import { EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
+import { DeleteAction, EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
 
 @Component({
   selector: 'app-products-table',
@@ -10,6 +10,7 @@ import { EventAction, GetAllProductsResponse } from 'src/models/interfaces/produ
 export class ProductsTableComponent {
   @Input() products: Array<GetAllProductsResponse> = [];
   @Output() productEvent = new EventEmitter<EventAction>();
+  @Output() productDeleteEvent = new EventEmitter<DeleteAction>();
 
   productSelected!: GetAllProductsResponse;
 
@@ -21,6 +22,15 @@ export class ProductsTableComponent {
     if (action && action !== "") {
       const productEventData = id && id !== "" ? { action, id } : { action };
       this.productEvent.emit(productEventData);
+    }
+  }
+
+  handlerDeleteProduct(productName: string, productId: string): void {
+    if (productName !== "" && productId !== "") {
+      this.productDeleteEvent.emit({
+        productName,
+        productId
+      });
     }
   }
 }
