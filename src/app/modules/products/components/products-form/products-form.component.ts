@@ -16,7 +16,6 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
 })
 export class ProductsFormComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject();
-  private ref!: DynamicDialogRef;
 
   addProductForm = this.formBuilder.group({
     name: ['', Validators.required],
@@ -34,7 +33,8 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private formBuilder: FormBuilder,
     private router: Router,
-    private productService: ProductsService
+    private productService: ProductsService,
+    public ref: DynamicDialogRef
   ){}
 
   ngOnInit(): void {

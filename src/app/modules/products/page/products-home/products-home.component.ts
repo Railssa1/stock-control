@@ -15,6 +15,8 @@ import { ProductsFormComponent } from '../../components/products-form/products-f
 })
 export class ProductsHomeComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject();
+  private ref!: DynamicDialogRef;
+
   productsList: Array<GetAllProductsResponse> = [];
 
   constructor(
@@ -24,7 +26,7 @@ export class ProductsHomeComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private dialogService: DialogService,
-    public ref: DynamicDialogRef
+
   ) { }
 
   ngOnInit(): void {
