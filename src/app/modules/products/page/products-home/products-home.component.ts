@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject, takeUntil } from 'rxjs';
 import { ProductsDataTransferService } from 'src/app/shared/products/products-data-transfer.service';
 import { DeleteAction, EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
 import { ProductsService } from 'src/services/products/products.service';
+import { ProductsFormComponent } from '../../components/products-form/products-form.component';
 
 @Component({
   selector: 'app-products-home',
@@ -20,7 +22,9 @@ export class ProductsHomeComponent implements OnInit, OnDestroy {
     private productsService: ProductsService,
     private productsDtService: ProductsDataTransferService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private dialogService: DialogService,
+    public ref: DynamicDialogRef
   ) { }
 
   ngOnInit(): void {
@@ -54,10 +58,25 @@ export class ProductsHomeComponent implements OnInit, OnDestroy {
   }
 
   handlerProductActions(event: EventAction): void {
-    console.log("Evento recebido", event);
+    this.ref = this.dialogService.open(ProductsFormComponent, {
+      header: event.action,
+      width: '70%',
+      contentStyle: { overflow: 'auto' },
+      baseZIndex: 10000,
+      maximizable: true,
+      data: {
+        event: event,
+        productsList: this.productsList
+      }
+    });
+    this.ref.onClose.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => this.loadingProductsByApi()
+    });
   }
 
-  handlerDeleteProduct(event: DeleteAction): void{
+  handlerDeleteProduct(event: DeleteAction): void {
     this.confirmationService.confirm({
       message: `Deseja excluir o produto: ${event.productName}`,
       header: 'Confirmação de Exclusão',
