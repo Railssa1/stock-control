@@ -7,6 +7,8 @@ import { ProductsDataTransferService } from 'src/app/shared/products/products-da
 import { DeleteAction, EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
 import { ProductsService } from 'src/services/products/products.service';
 import { ProductsFormComponent } from '../../components/products-form/products-form.component';
+import { MessageHandlerService } from 'src/app/shared/utils/message-handler.service';
+import { MessageStatus } from 'src/app/shared/utils/enums/MessageStatus.enum';
 
 @Component({
   selector: 'app-products-home',
@@ -20,13 +22,11 @@ export class ProductsHomeComponent implements OnInit, OnDestroy {
   productsList: Array<GetAllProductsResponse> = [];
 
   constructor(
-    private router: Router,
     private productsService: ProductsService,
     private productsDtService: ProductsDataTransferService,
-    private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private dialogService: DialogService,
-
+    private messageHandlerService: MessageHandlerService,
   ) { }
 
   ngOnInit(): void {
@@ -49,12 +49,7 @@ export class ProductsHomeComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.log(err);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Erro ao carregar produtos',
-            life: 2500
-          });
+          this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Erro ao carregar produtos');
         }
       });
   }
@@ -95,22 +90,11 @@ export class ProductsHomeComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Produto excluido com sucesso',
-          life: 2500
-        });
-
+        this.messageHandlerService.handlerMessage(MessageStatus.Success, 'Produto excluido com sucesso');
         this.loadingProductsByApi();
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao excluir produto',
-          life: 2500
-        });
+        this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Erro ao excluir produto');
       }
     });
   }

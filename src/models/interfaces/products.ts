@@ -47,3 +47,11 @@ export interface CreateProductResponse {
   amount: number;
   category_id: string;
 }
+
+export interface EditProductRequest {
+  id: string;
+  name: string;
+  price: string;
+  description: string;
+  amount: number;
+}

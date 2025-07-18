@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
+import { MessageStatus } from 'src/app/shared/utils/enums/MessageStatus.enum';
+import { MessageHandlerService } from 'src/app/shared/utils/message-handler.service';
 import { LoginRequest, SignupRequest } from 'src/models/interfaces/user';
 import { UserService } from 'src/services/user/user.service';
 
@@ -17,7 +19,7 @@ export class HomeComponent implements OnDestroy {
     private fb: FormBuilder,
     private userService: UserService,
     private cookieService: CookieService,
-    private messageService: MessageService,
+    private messageHandlerService: MessageHandlerService,
     private router: Router
   ) { }
 
@@ -50,18 +52,10 @@ export class HomeComponent implements OnDestroy {
         this.loginForm.reset();
         this.router.navigate(['/dashboard']);
 
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: `Bem-vindo de volta, ${resp.name}`
-        });
+        this.messageHandlerService.handlerMessage(MessageStatus.Success, `Bem-vindo de volta, ${resp.name}`);
       },
       error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Falha ao realizar login, tente novamente'
-        });
+        this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Falha ao realizar login, tente novamente');
         console.log(err);
       }
     });
@@ -75,18 +69,10 @@ export class HomeComponent implements OnDestroy {
       next: () => {
         this.signupForm.reset();
         this.isLogin = true;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Usuário criado com sucesso.'
-        });
+        this.messageHandlerService.handlerMessage(MessageStatus.Success, 'Usuário criado com sucesso.');
       },
       error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Usuário não criado, tente novamente'
-        });
+        this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Usuário não criado, tente novamente');
         console.log(err);
       }
     });

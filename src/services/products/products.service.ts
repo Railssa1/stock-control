@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { map, Observable } from 'rxjs';
 import { environments } from 'src/environments/environments';
-import { CreateProductRequest, CreateProductResponse, DeleteProductResponse, GetAllProductsResponse } from 'src/models/interfaces/products';
+import { CreateProductRequest, CreateProductResponse, DeleteProductResponse, EditProductRequest, GetAllProductsResponse } from 'src/models/interfaces/products';
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +42,10 @@ export class ProductsService {
 
   createProduct(request: CreateProductRequest): Observable<CreateProductResponse> {
     return this.http.post<CreateProductResponse>(`${this.urlApi}/product`, request, this.httpOptions);
+  }
+
+  editProduct(request: EditProductRequest): Observable<void> {
+    return this.http.put<void>(`${this.urlApi}/product/edit`, request, this.httpOptions);
   }
 
 }

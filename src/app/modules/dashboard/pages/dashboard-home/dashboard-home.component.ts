@@ -3,6 +3,8 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { ProductsDataTransferService } from 'src/app/shared/products/products-data-transfer.service';
+import { MessageStatus } from 'src/app/shared/utils/enums/MessageStatus.enum';
+import { MessageHandlerService } from 'src/app/shared/utils/message-handler.service';
 import { GetAllProductsResponse } from 'src/models/interfaces/products';
 import { ProductsService } from 'src/services/products/products.service';
 
@@ -14,8 +16,8 @@ import { ProductsService } from 'src/services/products/products.service';
 export class DashboardHomeComponent implements OnInit, OnDestroy {
   constructor(
     private productsService: ProductsService,
-    private messageService: MessageService,
-    private productsDtService: ProductsDataTransferService
+    private productsDtService: ProductsDataTransferService,
+    private messageHandlerService: MessageHandlerService
   ) { }
 
   productList: Array<GetAllProductsResponse> = [];
@@ -38,12 +40,7 @@ export class DashboardHomeComponent implements OnInit, OnDestroy {
         this.setProductsChatConfig();
       },
       error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Falha ao carregar dados. Tente novamente.',
-          life: 2500
-        });
+        this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Falha ao carregar dados. Tente novamente.');
         console.log(err);
       }
     })
