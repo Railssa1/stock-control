@@ -15,11 +15,17 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
+import { CategoriesTableComponent } from './components/categories-table/categories-table.component';
+import { CategoriesHomeComponent } from './page/categories-home/categories-home.component';
+import { ConfirmDialogModule } from "primeng/confirmdialog";
 
 
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    CategoriesHomeComponent,
+    CategoriesTableComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -35,8 +41,9 @@ import { ConfirmationService } from 'primeng/api';
     InputTextModule,
     InputTextareaModule,
     DynamicDialogModule,
-    TooltipModule
-  ],
+    TooltipModule,
+    ConfirmDialogModule
+],
   providers: [DialogService, ConfirmationService]
 })
 export class CategoriesModule { }
