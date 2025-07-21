@@ -49,9 +49,10 @@ export interface CreateProductResponse {
 }
 
 export interface EditProductRequest {
-  id: string;
+  product_id: string;
   name: string;
   price: string;
   description: string;
   amount: number;
+  category_id: string;
 }

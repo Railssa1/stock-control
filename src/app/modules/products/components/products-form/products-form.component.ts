@@ -4,12 +4,13 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Category, CategoryResponse } from 'src/models/interfaces/category';
-import { CreateProductRequest, EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
+import { CreateProductRequest, EditProductRequest, EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
 import { ProductsService } from 'src/services/products/products.service';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ProductsDataTransferService } from 'src/app/shared/products/products-data-transfer.service';
 import { MessageHandlerService } from 'src/app/shared/utils/message-handler.service';
 import { MessageStatus } from 'src/app/shared/utils/enums/MessageStatus.enum';
+import { ProductEvent } from 'src/models/enums/products';
 
 @Component({
   selector: 'app-products-form',
@@ -31,7 +32,8 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
     name: ['', Validators.required],
     price: ['', Validators.required],
     description: ['', Validators.required],
-    amount: [0, Validators.required]
+    amount: [0, Validators.required],
+    category_id: ['', Validators.required]
   });
 
   categoriesData: Array<CategoryResponse> = [];
@@ -40,9 +42,14 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
 
   productAction!: {
     event: EventAction,
-    productsData: Array<GetAllProductsResponse>
+    productsList: Array<GetAllProductsResponse>
   }
 
+  addProductAction = ProductEvent.ADD_PRODUCT_EVENT;
+  editProductAction = ProductEvent.EDIT_PRODUCT_EVENT;
+  saleProductAction = ProductEvent.SALE_PRODUCT_EVENT;
+
+  renderDropdown = false;
 
   constructor(
     private categoryService: CategoryService,
@@ -57,7 +64,13 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.productAction = this.refConfig.data;
+
+    if (this.productAction.event.action === this.saleProductAction) {
+      this.getProductsData();
+    }
+
     this.getAllCategories();
+    this.renderDropdown = true;
   }
 
   getAllCategories() {
@@ -66,6 +79,10 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (resp) => {
         this.categoriesData = resp;
+
+        if (this.productAction.event.action === this.editProductAction && this.productAction.productsList) {
+          this.getProductsSelected(this.productAction.event.id as string);
+        }
       }
     });
   }
@@ -91,13 +108,33 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
   }
 
   handlerSubmitEditForm(): void {
-    if (this.editProductForm.value) {
+    if (this.editProductForm.valid) {
+      const request: EditProductRequest = {
+        product_id: this.productAction.event.id as string,
+        name: this.editProductForm.value.name as string,
+        price: this.editProductForm.value.price as string,
+        description: this.editProductForm.value.description as string,
+        amount: this.editProductForm.value.amount as number,
+        category_id: this.editProductForm.value.category_id as string
+      }
 
+      this.productService.editProduct(request).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.messageHandlerService.handlerMessage(MessageStatus.Success, 'Produto editado com sucesso.');
+          this.ref.close();
+        },
+        error: () => {
+          this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Error ao editar produto.');
+          this.ref.close();
+        }
+      });
     }
   }
 
   getProductsSelected(productId: string) {
-    const product = this.productAction.productsData.find(
+    const product = this.productAction.productsList.find(
       (product) => product.id === productId
     );
 
@@ -106,7 +143,8 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
         name: product?.name,
         price: product?.price,
         description: product?.description,
-        amount: product?.amount
+        amount: product?.amount,
+        category_id: product.category.id
       });
     }
   }
