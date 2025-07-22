@@ -54,7 +54,9 @@
 								<button pButton
 									pRipple
 									icon="pi pi-trash"
-									class="p-button-rounded p-button-danger"></button>
+									class="p-button-rounded p-button-danger"
+                  (click)="handlerDeleteCategory(category?.name, category?.id)">
+                </button>
 							</div>
 						</td>
 					</tr>

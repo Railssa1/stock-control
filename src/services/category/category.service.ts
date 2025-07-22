@@ -28,4 +28,13 @@ export class CategoryService {
   getAllCategories(): Observable<Array<CategoryResponse>> {
     return this.http.get<Array<CategoryResponse>>(`${this.urlApi}/categories`, this.httpOptions);
   }
+
+  deleteCategory(category_id: string): Observable<void> {
+    return this.http.delete<void>(`${this.urlApi}/category/delete`, {
+      ...this.httpOptions,
+      params: {
+        category_id
+      }
+    });
+  }
 }

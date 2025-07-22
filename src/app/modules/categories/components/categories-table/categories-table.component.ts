@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { CategoryResponse } from 'src/models/interfaces/category';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CategoryEvent } from 'src/models/enums/categories';
+import { CategoryResponse, DeleteCategoryAction, EditCategoryAction } from 'src/models/interfaces/category';
 
 @Component({
   selector: 'app-categories-table',
@@ -8,6 +9,15 @@ import { CategoryResponse } from 'src/models/interfaces/category';
 })
 export class CategoriesTableComponent {
   @Input() categories: Array<CategoryResponse> = [];
+  @Output() categoryEvent = new EventEmitter<EditCategoryAction>();
+  @Output() deleteEvent = new EventEmitter<DeleteCategoryAction>();
 
   categorySelected!: CategoryResponse;
+
+  addCategoryAction = CategoryEvent.ADD_CATEGORY_ACTION;
+  editCategoryAction = CategoryEvent.EDIT_CATEGORY_ACTION;
+
+  handlerDeleteCategory(categoryName: string, category_id: string) {
+    this.deleteEvent.emit({ category_id, categoryName });
+  }
 }
