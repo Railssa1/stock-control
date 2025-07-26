@@ -20,4 +20,8 @@ export class CategoriesTableComponent {
   handlerDeleteCategory(categoryName: string, category_id: string) {
     this.deleteEvent.emit({ category_id, categoryName });
   }
+
+  handlerCategoryEvent(action: string, id?:string, categoryName?:string): void {
+    this.categoryEvent.emit({ action, id, categoryName });
+  }
 }

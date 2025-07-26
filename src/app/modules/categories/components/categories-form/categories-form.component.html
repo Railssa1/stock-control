@@ -1,0 +1,17 @@
+<div>
+	<form [formGroup]="categoryForm"
+		(ngSubmit)="handlerSubmitAddForm()">
+		<div class="card flex flex-column md:flex-column gap-3">
+			<input pInputText
+				placeholder="Nome"
+				formControlName="name">
+
+			<div class="flex flex-row justify-content-center align-content-center align-items-center">
+				<p-button [disabled]="categoryForm.invalid"
+					type="submit"
+					label="Adicionar Categoria">
+				</p-button>
+			</div>
+		</div>
+	</form>
+</div>

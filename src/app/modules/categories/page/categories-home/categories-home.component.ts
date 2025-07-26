@@ -2,10 +2,12 @@ import { CategoryService } from './../../../../../services/category/category.ser
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
-import { Subject, takeUntil } from 'rxjs';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { MessageStatus } from 'src/app/shared/utils/enums/MessageStatus.enum';
 import { MessageHandlerService } from 'src/app/shared/utils/message-handler.service';
-import { CategoryResponse, DeleteCategoryAction } from 'src/models/interfaces/category';
+import { CategoryResponse, DeleteCategoryAction, EditCategoryAction } from 'src/models/interfaces/category';
+import { CategoriesFormComponent } from '../../components/categories-form/categories-form.component';
 
 @Component({
   selector: 'app-categories-home',
@@ -15,12 +17,14 @@ import { CategoryResponse, DeleteCategoryAction } from 'src/models/interfaces/ca
 export class CategoriesHomeComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject();
   categoriesData: CategoryResponse[] = [];
+  ref!: DynamicDialogRef;
 
   constructor(
     private categoryService: CategoryService,
     private messageHandlerService: MessageHandlerService,
     private router: Router,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private dialogService: DialogService
   ) { }
 
   ngOnInit() {
@@ -55,16 +59,39 @@ export class CategoriesHomeComponent implements OnInit, OnDestroy {
 
   deleteCategory(category_id: string): void {
     this.categoryService.deleteCategory(category_id).pipe(
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.getAllCateogories()
+      })
     ).subscribe({
       next: () => {
         this.messageHandlerService.handlerMessage(MessageStatus.Success, 'Categoria removida com sucesso.');
-        this.getAllCateogories();
       },
       error: () => {
         this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Falha ao remover categorias.');
       }
     });
+  }
+
+  handlerCategotyEvent(event: EditCategoryAction): void {
+    this.ref = this.dialogService.open(CategoriesFormComponent, {
+      header: event.action,
+      width: '70%',
+      contentStyle: { overflow: 'auto' },
+      baseZIndex: 1000,
+      maximizable: true,
+      data: {
+        event: event
+      }
+    });
+
+    this.ref.onClose.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.getAllCateogories();
+      }
+    })
   }
 
   ngOnDestroy(): void {

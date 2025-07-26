@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
 import { environments } from 'src/environments/environments';
-import { CategoryResponse } from 'src/models/interfaces/category';
+import { CategoryRequest, CategoryResponse } from 'src/models/interfaces/category';
 
 @Injectable({
   providedIn: 'root'
@@ -36,5 +36,9 @@ export class CategoryService {
         category_id
       }
     });
+  }
+
+  createCategory(request: CategoryRequest): Observable<CategoryResponse> {
+    return this.http.post<CategoryResponse>(`${this.urlApi}/category`, request, this.httpOptions);
   }
 }
