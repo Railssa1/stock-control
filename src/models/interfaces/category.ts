@@ -26,3 +26,8 @@ export interface DeleteCategoryAction {
 export interface CategoryAction {
   event: EditCategoryAction
 }
+
+export interface CategoryEditRequest {
+  name: string;
+  category_id: string;
+}

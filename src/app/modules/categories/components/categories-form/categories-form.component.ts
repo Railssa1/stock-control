@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Subject, take, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MessageStatus } from 'src/app/shared/utils/enums/MessageStatus.enum';
 import { MessageHandlerService } from 'src/app/shared/utils/message-handler.service';
 import { CategoryEvent } from 'src/models/enums/categories';
-import { CategoryAction, CategoryRequest } from 'src/models/interfaces/category';
+import { CategoryAction, CategoryEditRequest, CategoryRequest } from 'src/models/interfaces/category';
 import { CategoryService } from 'src/services/category/category.service';
 
 @Component({
@@ -34,6 +34,11 @@ export class CategoriesFormComponent implements OnInit, OnDestroy {
   ){}
 
   ngOnInit(): void {
+    this.categoryAction = this.refConfing.data;
+
+    if (this.categoryAction.event.action === this.editCategoryAction && this.categoryAction.event.categoryName) {
+      this.setCategoryName(this.categoryAction.event.categoryName);
+    }
   }
 
   handlerSubmitAddForm(): void {
@@ -57,6 +62,44 @@ export class CategoriesFormComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  handlerSubmitEditForm(): void {
+    if (this.categoryForm.valid && this.categoryAction.event.id) {
+      const request: CategoryEditRequest = {
+        name: this.categoryForm.value.name as string,
+        category_id: this.categoryAction.event.id
+      }
+
+      this.categoryService.editCategory(request).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.categoryForm.reset();
+          this.messageHandlerService.handlerMessage(MessageStatus.Success, 'Categoria editada com sucesso');
+          this.ref.close();
+        },
+        error: () => {
+          this.categoryForm.reset();
+          this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Erro ao editar categoria');
+          this.ref.close();
+        }
+      });
+    }
+  }
+
+  handlerSubmitCategoryAction(): void {
+    if (this.categoryAction.event.action === this.addCategoryAction) {
+      this.handlerSubmitAddForm();
+    } else if (this.categoryAction.event.action === this.editCategoryAction){
+      this.handlerSubmitEditForm();
+    }
+  }
+
+  setCategoryName(categoryName: string): void {
+    this.categoryForm.setValue({
+      name: categoryName
+    });
   }
 
   ngOnDestroy(): void {
