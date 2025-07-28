@@ -4,7 +4,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Category, CategoryResponse } from 'src/models/interfaces/category';
-import { CreateProductRequest, EditProductRequest, EventAction, GetAllProductsResponse } from 'src/models/interfaces/products';
+import { CreateProductRequest, EditProductRequest, EventAction, GetAllProductsResponse, SaleProductRequest } from 'src/models/interfaces/products';
 import { ProductsService } from 'src/services/products/products.service';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ProductsDataTransferService } from 'src/app/shared/products/products-data-transfer.service';
@@ -36,9 +36,15 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
     category_id: ['', Validators.required]
   });
 
+  saleProductForm = this.formBuilder.group({
+    amount: [0, Validators.required],
+    product_id: ['', Validators.required]
+  });
+
   categoriesData: Array<CategoryResponse> = [];
   selectedCategories: Array<Category> = [];
   productsData: Array<GetAllProductsResponse> = [];
+  saleProductSelected!: GetAllProductsResponse;
 
   productAction!: {
     event: EventAction,
@@ -129,6 +135,32 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
           this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Error ao editar produto.');
           this.ref.close();
         }
+      });
+    }
+  }
+
+  handlerSubmitSaleProduct(): void {
+    if (this.saleProductForm.valid) {
+      const request: SaleProductRequest = {
+        amount: this.saleProductForm.value.amount as number,
+        product_id: this.saleProductForm.value.product_id as string
+      };
+
+      this.productService.saleProdut(request).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.saleProductForm.reset();
+          this.getProductsData();
+          this.messageHandlerService.handlerMessage(MessageStatus.Success, 'Venda efetuada com sucesso.');
+          this.ref.close();
+          this.router.navigate(['/dashboard']);
+        },
+        error: () => {
+          this.saleProductForm.reset();
+          this.messageHandlerService.handlerMessage(MessageStatus.Error, 'Error ao vender produto.');
+          this.ref.close();
+        },
       });
     }
   }
